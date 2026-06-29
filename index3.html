@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnus Institute - Internal Network</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --term-green: #00ff66;
+            --term-dim: #00441b;
+            --term-bg: #050a05;
+            --term-text: #aaffbb;
+            --accent-hover: #17B169;
+        }
+
+        body {
+            background-color: var(--term-bg);
+            color: var(--term-text);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .terminal-box {
+            border: 2px solid var(--term-green);
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+            max-width: 900px;
+            margin: 0 auto 30px auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            width: 100%;
+            box-sizing: border-box;
+            flex: 1;
+        }
+
+        /* Górny pasek statusu */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--term-dim);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ff3333;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ff3333;
+            display: inline-block;
+        }
+
+        h1, h2, h3 {
+            color: var(--term-green);
+            text-transform: uppercase;
+            border-bottom: 1px dashed var(--term-green);
+            padding-bottom: 5px;
+        }
+
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+
+        .login-form {
+            max-width: 350px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .input-line {
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input {
+            background-color: #000;
+            border: 1px solid var(--term-green);
+            color: var(--term-green);
+            font-family: inherit;
+            padding: 5px;
+            width: 200px;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 5px var(--term-green);
+        }
+
+        .term-btn {
+            background-color: var(--term-dim);
+            color: var(--term-green);
+            border: 1px solid var(--term-green);
+            font-family: inherit;
+            padding: 8px 15px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .term-btn:hover {
+            background-color: var(--term-green);
+            color: #000;
+        }
+
+        .logout-btn {
+            padding: 3px 8px;
+            font-size: 0.8rem;
+        }
+
+        .error-msg {
+            color: #ff3333;
+            margin-top: 15px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .hub-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 500px;
+            margin: 40px auto;
+        }
+
+        .hub-tile {
+            border: 1px solid var(--term-green);
+            padding: 20px;
+            background: rgba(0, 68, 27, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .hub-tile:hover {
+            background: var(--term-dim);
+            box-shadow: 0 0 10px var(--term-green);
+        }
+
+        .hub-tile h3 {
+            margin-top: 0;
+            border: none;
+        }
+
+        .tech-box {
+            max-width: 600px;
+            margin: 30px auto;
+            border: 1px dashed var(--term-green);
+            padding: 20px;
+            background-color: rgba(0, 15, 5, 0.5);
+        }
+
+        .tech-info {
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: var(--term-text);
+        }
+
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px;
+            font-size: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid var(--term-dim);
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--term-dim);
+            color: var(--term-green);
+        }
+
+        tr:hover td {
+            background-color: rgba(0, 255, 102, 0.1);
+            cursor: pointer;
+        }
+
+        .statement-view {
+            margin-top: 30px;
+            border-top: 2px double var(--term-green);
+            padding-top: 20px;
+        }
+
+        .statement-content-formatted {
+            text-align: center;
+            line-height: 1.6;
+            white-space: normal;
+        }
+
+        .statement-content-formatted p {
+            margin-bottom: 15px;
+        }
+
+        .statement-content-formatted .small-bracket {
+            font-size: 0.85em;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .statement-content-formatted strong {
+            font-size: 1.15rem;
+        }
+
+        .metadata {
+            background-color: #001105;
+            padding: 10px;
+            border: 1px solid var(--term-dim);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .assessment {
+            color: #ffaa00;
+            border-left: 3px solid #ffaa00;
+            padding-left: 15px;
+            margin-top: 25px;
+            font-style: italic;
+            text-align: left;
+        }
+
+        .access-denied-box {
+            color: #ff3333;
+            border: 2px dashed #ff3333;
+            background-color: #1a0000;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
+        }
+
+        .tw-box {
+            border: 1px dashed #ffaa00;
+            background-color: rgba(255, 170, 0, 0.05);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .tw-header {
+            background-color: rgba(255, 170, 0, 0.15);
+            color: #ffaa00;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            user-select: none;
+        }
+
+        .tw-header:hover {
+            background-color: rgba(255, 170, 0, 0.25);
+        }
+
+        .tw-content {
+            padding: 12px;
+            color: #ffcc66;
+            border-top: 1px dashed #ffaa00;
+        }
+
+        .tw-list {
+            margin: 5px 0 0 0;
+            padding-left: 20px;
+            list-style-type: square;
+        }
+
+        .tw-list li {
+            margin-bottom: 4px;
+        }
+
+        .quiz-box {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--term-green);
+        }
+
+        .answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-btn {
+            text-align: left;
+            width: 100%;
+        }
+
+        .scale-section {
+            margin-bottom: 25px;
+            background: rgba(0, 30, 10, 0.3);
+            padding: 15px;
+            border: 1px solid var(--term-dim);
+        }
+        
+        .scale-title {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--term-text);
+        }
+
+        .scale-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .scale-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 5px;
+            font-size: 0.85rem;
+        }
+
+        .scale-btn.selected {
+            background-color: var(--term-green);
+            color: #000;
+            box-shadow: 0 0 10px var(--term-green);
+        }
+
+        .result-section-title {
+            font-size: 1.1rem;
+            color: #ffaa00;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ffaa00;
+            padding-bottom: 3px;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+        }
+
+        .result-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-bg {
+            background-color: #112211;
+            border: 1px solid var(--term-dim);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background-color: var(--term-green);
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease-out;
+            box-shadow: 0 0 8px var(--term-green);
+        }
+
+        .progress-bar-fill.marked-fill {
+            background-color: #ff3333;
+            box-shadow: 0 0 8px #ff3333;
+        }
+
+        .archive-footer {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #55a871;
+            border-top: 1px solid var(--term-dim);
+            padding-top: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .archive-footer a {
+            color: var(--term-green);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--term-green);
+        }
+
+        .archive-footer a:hover {
+            color: #fff;
+            border-bottom-style: solid;
+        }
+
+        .cc-badge {
+            margin-top: 10px;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            height: 31px;
+        }
+
+        .cc-badge:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="terminal-box">
+    <div class="status-bar">
+        <div class="status-container">
+            THE MAGNUS INSTITUTE INTERNAL NETWORK // TERMINAL-4 // 
+            <span class="status-dot blink"></span>
+            <span class="blink">ONLINE</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button id="nav-hub-btn" class="term-btn logout-btn hidden" onclick="goBackToHub()">HOME MENU</button>
+            <button id="logout-link" class="term-btn logout-btn hidden" onclick="logout()">LOG OUT</button>
+        </div>
+    </div>
+    
+    <div id="login-screen" class="login-form">
+        <h2>RESTRICTED ACCESS</h2>
+        <p>Wprowadź login i hasło:</p>
+        <div class="input-line">
+            <label>USER ID:</label>
+            <input type="text" id="username" autocomplete="off">
+        </div>
+        <div class="input-line">
+            <label>PASSWORD:</label>
+            <input type="password" id="password">
+        </div>
+        <button class="term-btn" onclick="tryLogin()">ZALOGUJ</button>
+        <div id="error-box" class="error-msg"></div>
+    </div>
+
+    <div id="hub-screen" class="hidden">
+        <h2 id="welcome-header">WELCOME TO THE CENTRAL NODE</h2>
+        <p style="text-align: center;">Wybierz operację systemową:</p>
+        
+        <div class="hub-container">
+            <div class="hub-tile" onclick="openDatabase()">
+                <h3>[SYS_01] BROWSE STATEMENTS</h3>
+                <p>Przeglądaj i czytaj zabezpieczone zeznania archiwalne.</p>
+            </div>
+            <div class="hub-tile" onclick="startQuiz()">
+                <h3>[SYS_02] ALIGNMENT EVALUATION</h3>
+                <p>Uruchom kwestionariusz w celu określenia ukierunkowania.</p>
+            </div>
+            <div class="hub-tile" onclick="openTechSupport()">
+                <h3>[SYS_03] TECH SUPPORT / REPORT ISSUE</h3>
+                <p>Zgłoś awarię terminala, uszkodzenie pliku lub błąd bazy danych.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="tech-screen" class="tech-box hidden">
+        <h2>MAGNUS INSTITUTE IT DEPARTMENT // INFRASTRUCTURE</h2>
+        <div class="tech-info">
+            <p><strong>Status węzła:</strong> OGRANICZONA WYDAJNOŚĆ</p>
+            <p><strong>Administrator sieci i kierownik działu IT:</strong> @seismic.storm na Discordzie</p>
+            <p><strong>Zastępca:</strong> @eyunsan na Discordzie</p>
+            <p><strong>Komunikat systemowy:</strong> Prosimy nie zgłaszać problemów związanych z 'dziwnymi odgłosami dobiegającymi z pomieszczenia serwerowni'. Dział IT nie zajmuje się zjawiskami paranormalnymi.</p>
+            <p>W przypadku wystąpienia błędu w funkcjonowaniu bazy danych lub zablokowania stacji roboczej, należy skorzystać z poniższej procedury zgłoszeniowej.</p>
+        </div>
+        <button class="term-btn" style="width: 100%;" onclick="alert('Proszę spróbować wyłączyć i włączyć.')">
+            [EXECUTE] REPORT SYSTEM INCIDENT
+        </button>
+    </div>
+
+    <div id="database-screen" class="hidden">
+        <h2>ARCHIVE_DIRECTORY: STATEMENTS</h2>
+        
+        <div class="search-container">
+            <label for="search-box">SEARCH_QUERY_></label>
+            <input type="text" id="search-box" class="search-input" placeholder="Wpisz frazę lub nazwę Potęgi..." autocomplete="off">
+        </div>
+        
+        <table id="archive-table">
+            <thead>
+                <tr>
+                    <th>REF ID</th>
+                    <th>DATE</th>
+                    <th>SUBJECT</th>
+                    <th>REF NO.</th>
+                </tr>
+            </thead>
+            <tbody id="statements-table-body">
+            </tbody>
+        </table>
+
+        <div id="document-viewer" class="statement-view hidden"></div>
+    </div>
+
+    <div id="quiz-screen" class="quiz-box hidden">
+        <h2>ENTITY ALIGNMENT DETERMINATION TEST</h2>
+        <div class="question" id="question-text">Uruchamianie procedury testowej...</div>
+        <div class="answers-list" id="answers-container"></div>
+    </div>
+
+    <div id="result-screen" class="quiz-box hidden">
+        <h2>EVALUATION COMPLETE // RESULT PROFILE:</h2>
+        <div id="results-list"></div>
+        <button id="retry-btn" class="term-btn" style="margin-top: 25px; width: 100%;">
+            PONÓW PROCEDURĘ TESTOWĄ
+        </button>
+    </div>
+</div>
+
+<footer class="archive-footer">
+    <p>
+        <em>The Magnus Archives</em> belongs to <a href="https://rustyquill.com/" target="_blank" rel="noopener">The Rusty Quill</a> and is licensed under a 
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+    </p>
+    <p>This website is extremely <strong>UNOFFICIAL</strong> and follows the same license. The translation to Polish was done by @seismic.storm and @eyunsan.</p>
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
+        <img class="cc-badge" src="https://mirrors.creativecommons.org/presskit/buttons/88x31/svg/by-nc-sa.svg" alt="Creative Commons License BY-NC-SA">
+    </a>
+</footer>
+
+<script>
+    const users = {
+        "j.sims": "watchers_crown",
+        "m.blackwood": "lonely_tea",
+        "t.stoker": "kayak_2016",
+        "s.james": "artifact_storage",
+        "g.robinson": "fuckyouelias",
+        "h.strange": "pass123",
+        "aku": "pass123",
+        "guest": "guest123",
+        "admin": "admin123"
+    };
+
+    const database = [
+        { 
+            id: "0122204", 
+            date: "22.04.2012", 
+            magNum: "MAG 001", 
+            subject: "Nathan Watts", 
+            title: "Żabnica", 
+            entities: ["The Stranger"],
+            tw: "Alkohol, Używki (tytoń), Ludzkie zwłoki, Body horror, <strong>Dyskusja:</strong> porwania / zaginięcia, <strong>Wspomnienie:</strong> śmierć / urazy fizyczne / halucynacje",
+            content: `<div class="statement-content-formatted">
+                <p class="small-bracket">[CLICK]</p>
+                <p><strong>ARCHIWISTA</strong></p>
+                <p>Test… Test… Test… 1, 2, 3… W porządku.<br><span class="small-bracket">[kaszlnięcie]</span></p>
+                <p>Nazywam się Jonathan Sims. Pracuję dla Instytutu Magnusa w Londynie, organizacji zajmującej się badaniami naukowymi ezoteryki i zjawisk paranormalnych. Dyrektor Instytutu, Pan Elias Bouchard, zatrudnił mnie, żebym zastąpił poprzednią, niedawno zmarłą, Główną Archiwistkę – Gertrude Robinson.</p>
+                <p>Ostatnie cztery lata pracowałem w Instytucie jako badacz, w związku z tym posiadam wiedzę na temat znacznej części jego ważnych kontraktów i projektów. Zdecydowana większość z nich utyka w martwym punkcie. Można się zresztą tego spodziewać, biorąc pod uwagę fakt, że prawdziwe zjawiska nadprzyrodzone, których (jak zawsze podkreślam) jest bardzo mało, mają tendencję do opierania się łatwym wnioskom. Kiedy dochodzenie dociera do momentu, w którym nie da się zrobić nic więcej, dokumenty z nim związane trafiają do archiwów.</p>
+                <p>Instytut został założony w 1818 roku, oznacza to, że archiwum zawiera prawie 200 lat dokumentacji takich przypadków. W połączeniu z faktem, że większość pracowników Instytutu preferuje życie w wieży z kości słoniowej nad takie w czystej akademii związanej ze skomplikowaną pracą i uważnym badaniem zeznań, czy też bieżących doświadczeń – otrzymujemy perfekcyjnie zorganizowaną bibliotekę i absolutnie zaniedbane archiwum. Niekoniecznie jest to problem. Współczesne systemy dokumentacji i indeksowania stanowią prawdziwe cuda. Wszystko czego trzeba by utrzymać porządek to chociażby w połowie przyzwoity Archiwista. Najwyraźniej Gertrude Robinson nie była jednym z nich.</p>
+                <p>Z miejsca, w którym siedzę, jestem w stanie dostrzec tysiące dokumentów. W znacznej części  luźno rozrzuconych po całym pomieszczeniu. Inne wrzucono do nieoznakowanych pudeł. Niewiele z nich zostało oznaczone pomocnymi etykietami, takimi jak 86-91 G/H. Ale to nie wszystko, większość zdaje się być napisana ręcznie lub na maszynie. Nic nie jest tu zdigitalizowane, nie ma też żadnego rodzaju wersji dźwiękowych. Właściwie, zdawać by się mogło, że pierwszym komputerem, jaki kiedykolwiek znalazł się w tym pomieszczeniu jest laptop, który ze sobą dzisiaj przyniosłem. Co ważniejsze, zdaje się że niewiele dokumentów związanych z faktycznymi dochodzeniami jest przechowywane w archiwach. W związku z powyższym, większość zgromadzonych tu dokumentów stanowią same zeznania.</p>
+                <p>Uporządkowanie tego bałaganu zajmie mi mnóstwo czasu… Udało mi się załatwić do pomocy dwóch innych badaczy. Dobrze… Tak właściwie to trzech, ale nie liczę Martina, który prawdopodobnie nie wniesie do naszej pracy nic poza opóźnieniami. Planuję zdigitalizować tak dużo dokumentów, jak będzie to możliwe i nagrać wersje dźwiękowe każdego z nich. Część będzie musiało zostać nagrane przy użyciu magnetofonu, ponieważ moje próby zrobienia tego na laptopie spotkały się z… poważnymi zakłóceniami nagrywanego dźwięku.</p>
+                <p>Równolegle, Tim, Sasha i… tak, prawdopodobnie Martin, będą prowadzić dodatkowe dochodzenia, by sprawdzić jakich detali może brakować w naszych dokumentach. Postaram się przedstawić je w możliwie zwięzłej formie na końcu każdego z zeznań. Niestety, już teraz mogę obiecać, że nagrania nie będą tworzone w żadnej konkretnej kolejności względem daty czy tematyki. Mogę jedynie przeprosić z góry każdego badacza, który w przyszłości będzie próbował wykorzystać powstałą dokumentację do własnych badań.</p>
+                <p>Zdaje się, że spędziłem wystarczająco czasu usprawiedliwiając stan tego miejsca. Gdzieś trzeba zacząć.</p>
+                <p>Zeznanie Nathana Wattsa, dotyczące doświadczenia na Old Fishmarket Close w Edynburgu. Zeznanie złożone w dniu 22 kwietnia 2012 roku. Nagranie audio – Jonathan Sims, Główny Archiwista Instytutu Magnusa w Londynie.</p>
+                <p>Początek  zeznania.</p>
+                <p><strong>ARCHIWISTA (ZEZNANIE)</strong></p>
+                <p>Całe to zajście miało miejsce parę lat temu, więc z góry przepraszam, jeśli jakieś szczegóły nie będą się zgadzać. Czuję, że dobrze wszystko pamiętam, ale czasami zdarzają się rzeczy tak dziwne, że można nabrać wątpliwości. Tak czy inaczej… “dziwne” rzeczy są czymś, czym się tu zajmujecie, nie?</p>
+                <p>Studiuję na Uniwersytecie w Edynburgu. Dokładnie biochemię. Kiedy to się zdarzyło byłem na drugim roku. Nie mieszkałem wtedy w akademiku. Zamiast tego wynajmowałem mieszkanie z innymi studentami z mojego rocznika w dzielnicy Southside.</p>
+                <p>Szczerze mówiąc, nie spędzałem z nimi zbyt wiele czasu. Wcześniej zrobiłem sobie rok przerwy przed immatrykulacją. Do tego moje urodziny są w niewłaściwej części września, w związku z czym byłem prawie dwa lata starszy od większości kolegów, z którymi studiowałem. Znaczy, dogadywałem się z nimi całkiem nieźle, ale zwykle kończyłem spędzając czas ze studentami z wyższych lat.</p>
+                <p>To główny powód, dla którego w ogóle byłem na tamtej imprezie. Michael MacAulay, mój dobry przyjaciel, właśnie dostał się na magisterkę z Nauk o Ziemi, więc uznaliśmy to za świetną okazję na imprezę. No dobra, może “impreza” nie jest tu właściwym słowem, po prostu nawiedziliśmy pub Albanach w okolicach Royal Mile i piliśmy tak długo i głośno, że ostatecznie ludzie się od nas odsunęli i mieliśmy cały tył lokalu tylko dla siebie. Nie mam pojęcia jak dobrze znacie miejscówki do picia w Edynburgu, ale Albanach ma duży wybór świetnych single maltów, a ja prawdopodobnie odrobinę z nimi przesadziłem. Jak przez mgłę pamiętam, że Mike zasugerował, żebym zwolnił, na co odpowiedziałem mu siarczyście klnąc na to, że niewystarczająco świętuje własne sukcesy, czy coś w tym stylu.</p>
+                <p>W skrócie, koło północy byłem całkowicie nawalony i zdecydowałem, że pójdę do domu pieszo. Moje mieszkanie nie było daleko, może pół godziny na nogach (gdybym był trzeźwy), a noc była wystarczająco chłodna, abym teraz pamiętał, że miałem nadzieję, że chłód trochę mnie ocuci. Kierowałem się na Cowgate, a najszybszą drogą by się tam dostać z Royal Mile była droga przez Old Fishmarket Close. Jestem przekonany, że nie muszę wam mówić o tym jak strome potrafią być wzgórza w Edynburgu. Old Fishmarket Close jest jednak pod tym względem wyjątkowe, nawet jak na tamtejsze standardy. W niektórych miejscach kąt nachylenia musi mieć jakieś trzydzieści czy czterdzieści stopni, co jest wystarczająco trudne do nawigowania nawet jeśli nie wlało się w siebie zbyt dużej ilości szkockiej. Tak jak wspominałem, ja wypiłem jej dość sporo, więc to, że sturlałem się w dół ulicy jakoś w połowie drogi nie było dużym zaskoczeniem.</p>
+                <p>Patrząc wstecz, sam upadek nie był tak zły, jak mógłby być. Poza tym, że zostało mi po nim trochę paskudnych siniaków. Jednak w tamtym momencie sprawił, że od razu wytrzeźwiałem. Pozbierałem się z ziemi na tyle, na ile mogłem, upewniłem się, że nie jest mi nic poważnego, jak jakieś złamania czy coś. W tamtym momencie uznałem, że skręcę sobie papierosa na uspokojenie. To właśnie wtedy to usłyszałem.</p>
+                <p>“Poratujesz papierosem?”</p>
+                <p>Wyrwany nagle z własnych myśli, zląkłem się, zwłaszcza, że myślałem, że jestem sam. Szybko się pozbierałem i rozejrzałem wokół. Zauważyłem alejkę po drugiej stronie ulicy. Była wąska i zupełnie nieoświetlona, z małymi schodkami prowadzącymi w górę. Nieco wyżej na ścianie przy wejściu, dostrzegłem lampę, ale albo nie działała, albo nie była włączona, co oznaczało, że na odległość zaledwie kilku kroków w głąb zaułka, był on pogrążony w całkowitej ciemności. Kilka stopni od ulicy w zakamarku dostrzegłem postać. Ciężko cokolwiek o niej powiedzieć, ponieważ spowijał ją cień. Jeśli jednak miałbym zgadywać, głos którym się do mnie odezwała brzmiał męsko. Postać zdawała się delikatnie kołysać. Założyłem, że podobnie jak ja (kimkolwiek była osoba w cieniu) była trochę pijana.</p>
+                <p>Zapaliłem papierosa po czym wyciągnąłem tytoń w stronę postaci w zaułku. Zapytałem, czy ma coś przeciw skręcanym papierosom. Postać nie zbliżyła się, ale dalej kontynuowała kołysanie się z boku na bok. Teraz, kiedy to piszę, zdaje mi się oczywistym, że coś było nie tak. Gdybym nie był tak pijany, może zauważyłbym to wcześniej, ale wtedy, nawet gdy nieznajomy po raz kolejny zadał to samo pytanie (“Poratujesz papierosem?”) całkowicie pozbawionym intonacji głosem, w dalszym ciągu nie potrafiłem zrozumieć czemu czułem się tak nieswojo.</p>
+                <p>Przyglądając się nieznajomemu, moje oczy zaczęły przyzwyczajać się do ciemności i powoli byłem w stanie dostrzec więcej szczegółów. Zauważyłem, że jego twarz była pozbawiona wyrazu, a skóra zdawała się wilgotna i zapadnięta. Wyglądał jakby miał wysoką gorączkę. Teraz kołysał się jeszcze bardziej. Sprawiało to wrażenie, jakby poruszał się od talii na boki, do przodu i do tyłu. Wtedy skończyłem skręcać drugiego fajka i ostrożnie wyciągnąłem rękę z nim w jego stronę. Nie zbliżałem się jednak. Uznałem, że jeśli ten dziwak chce papierosa, będzie musiał sam sobie po niego wyjść z tej podejrzanej alejki. Nieznajomy nie wykonał jednak żadnego ruchu poza tym cholernym kołysaniem się na boki. Z jakiegoś powodu w mojej głowie zaświtało skojarzenie z żabnicą i pojedynczym punktem światła wiszącym w ciemności, ukrywającym to, co cię w nią wabi.</p>
+                <p>“Poratujesz papierosem?”</p>
+                <p>Czymkolwiek była postać powtórzyła swoją kwestię po raz kolejny, tym samym monotonnym głosem. To właśnie wtedy zdałem sobie sprawę, co było nie tak. Przez cały ten czas jej usta były zamknięte. Czymkolwiek było to, co powtarzało pytanie, nie było nieznajomym w alejce. Spojrzałem na jego stopy i zauważyłem, że nie dotykają ziemi. Ciało nieznajomego unosiło się, delikatnie kołysząc przy tym na boki.</p>
+                <p>Upuściłem papierosa i sięgnąłem po telefon, żeby włączyć latarkę. Nie wiem, dlaczego nie uciekłem, ani co miałem nadzieję zobaczyć w tym zaułku, ale chciałem lepiej się temu przyjrzeć. Gdy tylko udało mi się wyciągnąć telefon, postać zniknęła. Jakby zgięła się wpół i przepadła w ciemności, zupełnie jakby ktoś pociągnął za sznurek i ją odciągnął. Włączyłem latarkę i wpatrywałem się w alejkę, ale nie byłem w stanie zobaczyć, ani usłyszeć nic poza ciemnością i ciszą. Potykając się o własne nogi wróciłem na Royal Mile, gdzie nadal byli ludzie i oświetlone ulice. Tam znalazłem taksówkę, którą zabrałem się do domu.</p>
+                <p>Następnego dnia spałem do późna. Upewniłem się wcześniej, że nie będę miał żadnych wykładów ani zajęć, zwłaszcza że planowałem odespać noc porządnego picia. Zdaje się, że mi się udało, chociaż ciągle myślałem o tym dziwnym spotkaniu minionej nocy. Po wypiciu dwóch litrów wody, wzięciu jakichś przeciwbólowych i zjedzeniu bardzo tłustego śniadania, poczułem się na tyle po ludzku, żeby wyjść z mieszkania i przyjrzeć się tamtemu miejscu w świetle dziennym. Dużo z tego nie wynikło. Nie znalazłem żadnych śladów, plam krwi, ani niczego, co wskazywałoby na to, że kołysząca się postać kiedykolwiek tam w ogóle była. Jedynym co znalazłem był niedopałek Marlboro Red, leżący pod zakopconym kloszem lampy.</p>
+                <p>Poza tym nie bardzo wiedziałem, co jeszcze mógłbym zrobić. Zrobiłem najlepszy research na temat tego miejsca, jaki umiałem, ale nie znalazłem nikogo, kto miałby podobne doświadczenia. Nie udało mi się też znaleźć niczego w folklorze, ani nawet miejskich legend dotyczących Old Fishmarket Close. Kilku znajomych, którym opowiedziałem o tym, co się wydarzyło, po prostu uznało, że zostałem zaczepiony przez jakiegoś nieznajomego, a alkohol sprawił, że wydawało mi się to znacznie dziwniejsze, niż faktycznie było. Próbowałem im wyjaśnić, że nigdy nie miałem halucynacji po alkoholu i że nie ma mowy, żeby ten facet był po prostu jakąś zwykłą osobą, ale oni zawsze patrzyli na mnie z mieszaniną litości i troski, więc przestałem próbować.</p>
+                <p>Nigdy nie udało mi się dowiedzieć nic więcej, ale kilka dni później na kampusie zauważyłem ogłoszenia na temat zaginięcia. John Fellowes, tak się nazywał, ale właściwie nie znam gościa i nie umiałbym powiedzieć o nim nic więcej, poza dwoma rzeczami, które zdają mi się bardzo istotne: był na tej samej imprezie i, o ile dobrze pamiętam, jeszcze jej nie opuścił kiedy stamtąd wychodziłem. Drugą rzeczą był fakt, że na zdjęciu z plakatu o jego zaginięciu, zauważyłem, że z jego kieszeni wystawała paczka papierosów Marlboro Red.</p>
+                <p>Nie rzuciłem palenia, ale zauważyłem, że zacząłem częściej brać taksówki, gdy wychodzi na to, że do późna jestem poza domem.</p>
+                <p><strong>ARCHIWISTA</strong></p>
+                <p>Koniec Zeznania.</p>
+                <p>Dochodzenie przeprowadzone w tamtym czasie oraz działania następcze, które podjęliśmy w ciągu ostatnich kilku dni, nie dostarczyły żadnych dowodów potwierdzających zeznanie pana Wattsa dotyczące jego doświadczenia. Początkowo byłem skłonny ponownie umieścić je w sekcji „Dokumentów Zdyskredytowanych” w archiwum. To nowa kategoria, którą stworzyłem i, która, jak podejrzewam, będzie zawierała większość tutejszych zeznań.<br><br>Niemniej jednak, Sasha przeanalizowała policyjne raporty z tamtego okresu i okazało się, że w latach 2005-2010, kiedy rzekomo miało miejsce spotkanie pana Wattsa z tajemniczą postacią, w okolicy Old Fishmarket Close odnotowano sześć przypadków zaginięć. Jessica McEwen w listopadzie 2005, Sarah Baldwin w sierpniu 2006, Daniel Rawlings w grudniu tego samego roku, a następnie Ashley Dobson i Megan Shaw w maju i czerwcu 2008. Następnie, jak wspomina w swoim zeznaniu pan Watts, John Fellowes w marcu 2010. Wszystkie sześć zaginięć do dzisiaj nie zostało rozwiązanych. Baldwin i Shaw zdecydowanie należały do osób palących, ale nie ma dowodów, aby ktokolwiek poza nimi również palił, a nawet jeśli to, że ma to jakikolwiek związek ze sprawą.<br><br>Sasha znalazła coś jeszcze, a dokładniej w aktach sprawy zaginięcia Ashley Dobson. Była to kopia ostatniego zdjęcia zrobionego jej telefonem, które wysłała do swojej siostry Siobhan z podpisem “obczaj jaki pijany creep lol”, ale jedyne co widać na zdjęciu to zaciemniona pusta uliczka ze stopniami prowadzącymi w jej głąb. Zdaje się, że jest to ten sam zaułek opisany przez pana Wattsa w jego zeznaniu. Ten sam który, zgodnie z mapami okolicy, prowadzi do Tron Square. Na zdjęciu jednak nikogo nie widać.<br><br>Sasha pozwoliła sobie na przetworzenie zdjęcia w programie graficznym i zwiększenie kontrastu. Zabieg ten uwydatnił na zdjęciu zarysu długiej, smukłej dłoni, mniej więcej na wysokości talii mężczyzny średniego wzrostu. Nie mogę pozbyć się wrażenia, że dłoń układa się w przywołującym geście.<br><br>Koniec nagrania.<br><span class="small-bracket">[CLICK]</span></p>
+            </div>`, 
+            assessment: "Materiały uzupełniające znajdują się poniżej.", 
+            restricted: false 
+        },
+        { id: "9982211", date: "22.11.1998", magNum: "MAG 002", subject: "Joshua Gillespie", title: "Nie otwierać", entities: ["The Buried"], tw: "coś tam coś tam", content: "Zeznanie o trumnie", assessment: "", restricted: true },
+        { id: "0070107", date: "01.07.2007", magNum: "MAG 003", subject: "Amy Patel", title: "Po drugiej stronie ulicy", entities: ["The Stranger", "The Spiral"], tw: "paranoja, sobowtóry, podglądanie", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0132806", date: "28.06.2013", magNum: "MAG 004", subject: "Dominic Swain", title: "Wciągająca lektura", entities: ["The Vast"], tw: "utrata zmysłów, Leitner", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0092302", date: "23.02.2009", magNum: "MAG 005", subject: "Kieran Woodward", title: "Wyrzucone", entities: ["The Flesh"], tw: "", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0140912", date: "09.12.2014", magNum: "MAG 006", subject: "Timothy Hodge", title: "Wijąca się", entities: ["The Corruption"], tw: "robactwo", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "9220611", date: "06.11.1922", magNum: "MAG 007", subject: "Clarence Berry", title: "Dudziarz", entities: ["The Slaughter"], tw: "wojna, brutalność", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0071304", date: "13.03.2007", magNum: "MAG 008", subject: "Ivo Lensik", title: "Wypalony", entities: ["The Desolation"], tw: "ogień, destrukcja, utrata bliskich", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0020312", date: "03.12.2002", magNum: "MAG 009", subject: "Julia Montauk", title: "Ojcowska miłość", entities: ["The Hunt"], tw: "przemoc, krew", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0100710", date: "10.07.2010", magNum: "MAG 010", subject: "Trevor Herbert", title: "Zabójca Wampirów", entities: ["The Hunt"], tw: "wampiry, polowanie, przemoc fizyczna", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0151403", date: "14.03.2015", magNum: "MAG 011", subject: "Antonio Blake", title: "Marzyciel", entities: ["The End"], tw: "proroctwa śmierci, egzystencjalny lęk", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0121102", date: "11.02.2012", magNum: "MAG 012", subject: "Lesere Saraki", title: "Pierwsza Pomoc", entities: ["The Desolation"], tw: "oparzenia", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0161301", date: "13.01.2016", magNum: "MAG 013", subject: "Naomi Herne", title: "Sama", entities: ["The Lonely"], tw: "skrajna izolacja, mgła, zapomnienie", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0112905", date: "29.05.2011", magNum: "MAG 014", subject: "Lee Rentoul", title: "W kawałkach", entities: ["The Flesh", "The Slaughter"], tw: "ćwiartowanie ciała", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0140911", date: "09.11.2014", magNum: "MAG 015", subject: "Laura Popham", title: "Lost Johns' Cave", entities: ["The Buried"], tw: "jaskinie, uwięzienie, ciemność", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0150409", date: "09.04.2015", magNum: "MAG 016", subject: "Carlos Vittery", title: "Arachnofobia", entities: ["The Web"], tw: "pająki, pajęczyny", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "9991006", date: "10.06.1999", magNum: "MAG 017", subject: "Sebastian Adekoya", title: "Baśń Kościołama", entities: ["The Flesh"], tw: "", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0081212", date: "12.12.2008", magNum: "MAG 018", subject: "Christof Rudenko", title: "Mężczyzna z góry", entities: ["The Flesh", "The Corruption"], tw: "", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0113005", date: "30.05.2011", magNum: "MAG 019", subject: "Edwin Burroughs", title: "Spowiedź", entities: ["The Spiral", "The Web"], tw: "opętanie, utrata poczucia rzeczywistości", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0113005-B", date: "30.05.2011", magNum: "MAG 020", subject: "Edwin Burroughs", title: "Zbeszczeszczona Hostia", entities: ["The Web"], tw: "profanacja", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0022010", date: "20.10.2002", magNum: "MAG 021", subject: "Moira Kelly", title: "Spadek Swobodny", entities: ["The Vast"], tw: "latanie, brak grawitacji, lęk wysokości", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0161203", date: "12.03.2016", magNum: "MAG 022", subject: "Martin Blackwood", title: "Kolonia", entities: ["The Corruption"], tw: "robactwo", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "8163103", date: "31.03.1816", magNum: "MAG 023", subject: "Albrecht von Closen", title: "Schwarzwald", entities: ["The Eye"], tw: "", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0051701", date: "17.01.2005", magNum: "MAG 024", subject: "Leanne Denikin", title: "Dziwna Muzyka", entities: ["The Stranger"], tw: "lalki", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0151904", date: "19.04.2015", magNum: "MAG 025", subject: "Mark Bilham", title: "Gęstniejąca Ciemność", entities: ["The Dark"], tw: "brak światła, sekty, religia", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0160204", date: "02.04.2016", magNum: "MAG 026", subject: "Sasha James", title: "Zniekształcenie", entities: ["The Spiral"], tw: "", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0032408", date: "24.08.2003", magNum: "MAG 027", subject: "Paul McKenzi", title: "Solidny Zamek", entities: ["The Spiral"], tw: "", content: "", assessment: "", restricted: true },
+        { id: "0161704", date: "17.04.2016", magNum: "MAG 028", subject: "Melanie King", title: "Druga Skóra", entities: ["The Stranger"], tw: "", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "9720406", date: "04.06.1972", magNum: "MAG 029", subject: "Nathaniel Thorp", title: "Oszukując(a) Śmierć", entities: ["The End"], tw: "", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0130111", date: "01.09.2013", magNum: "MAG 030", subject: "David Laylow", title: "Piętro Uboju", entities: ["The Slaughter"], tw: "rzeźnia, krew", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0100912", date: "09.12.2010", magNum: "MAG 031", subject: "Lawrence Mortimer", title: "Pierwsze Polowanie", entities: ["The Hunt"], tw: "zwierzęca brutalność, pościg", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0142302", date: "23.02.2014", magNum: "MAG 032", subject: "Jane Prentiss", title: "Rój", entities: ["The Corruption"], tw: "pasożyty w ciele, rany, robactwo, osy", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0110201", date: "02.01.2011", magNum: "MAG 033", subject: "Carlita Sloane", title: "Świst Trapowy", entities: ["The Lonely"], tw: "otwarte morze", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0161207", date: "12.07.2016", magNum: "MAG 034", subject: "Lionel Elliott", title: "Lekcja Anatomii", entities: ["The Stranger"], tw: "sekcje zwłok", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0020406", date: "04.06.2002", magNum: "MAG 035", subject: "Harold Silvana", title: "Stare Korytarze", entities: ["The Buried", "The Flesh", "The Eye"], tw: "podziemia, zwierzęce kości", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0121911", date: "19.11.2012", magNum: "MAG 036", subject: "Nicole Baxter", title: "Zmożeni Chorobą", entities: ["The Corruption"], tw: "choroba", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0090608", date: "06.08.2009", magNum: "MAG 037", subject: "Jason North", title: "Ofiara Całopalna", entities: ["The Desolation"], tw: "sekta/kult, rytuł", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0120606", date: "06.06.2012", magNum: "MAG 038", subject: "Andre Ramao", title: "Rzeczy Znalezione", entities: ["The Spiral"], tw: "przeklęte przedmioty, zaginięcie", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0160729-A", date: "29.07.2016", magNum: "MAG 039", subject: "Wiele podmiotów", title: "Plaga", entities: ["The Corruption"], tw: "robactwo, owady", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true },
+        { id: "0160729-B", date: "29.07.2016", magNum: "MAG 040", subject: "Wiele podmiotów", title: "Ludzkie szczątki", entities: ["The Eye"], tw: "ludzkie szczątki", content: "Treść zabezpieczona protokołem.", assessment: "", restricted: true }
+    ];
+
+    const quizQuestions = [
+        { text: "Stoisz na krawędzi dachu wieżowca, a wokół panuje absolutna cisza. Co czujesz?", answers: [ { text: "Przeraża mnie ta pustka pode mną, ale nie mogę przestać patrzeć.", scores: { "The Vast": 2, "The Eye": 1 } }, { text: "Czuję potworną samotność, jakbym był jedynym człowiekiem na świecie.", scores: { "The Lonely": 3 } }, { text: "Mam wrażenie, że coś zaraz zepchnie mnie w dół.", scores: { "The Hunt": 2, "The Spiral": 1 } }, { text: "Chęć skoku, byle tylko poczuć pęd powietrza i ogień w żyłach.", scores: { "The Desolation": 2, "The Vast": 1 } } ] },
+    ];
+
+    const fearsAndLikesQuestions = [
+        { target: "Oczu", entities: ["The Eye"] },
+        { target: "Bycia obserwowanym", entities: ["The Eye"] },
+        { target: "Ujawnienia swoich sekretów", entities: ["The Eye"] },
+        { target: "Bezsilności", entities: ["The Eye", "The Buried", "The Web"] },
+        { target: "Pająków", entities: ["The Web"]},
+        { target: "Utraty kontroli", entities: ["The Web", "The Eye"]},
+        { target: "Uzależnienia", entities: ["The Web", "The Desolation"]},
+        { target: "Substancji psychoaktywnych", entities: ["The Desolation","The Spiral"]},
+        { target: "Insektów i owadów", entities: ["The Corruption"]},
+        { target: "Chorób i zaraków", entities: ["The Corruption"]},
+        { target: "Epidemii/Pandemii", entities: ["The Corruption","The Extinction"]},
+        { target: "Pasożytów", entities: ["The Corruption"]},
+        { target: "Pleśni i zgnilizny", entities: ["The Corruption"]},
+        { target: "Przemocy", entities: ["The Slaughter"]},
+        { target: "Krwi", entities: ["The Slaughter","The Hunt"]},
+        { target: "Wojny", entities: ["The Slaughter","The Extinction"]},
+        { target: "Samotności", entities: ["The Lonely"]},
+        { target: "Bycia zapomnianym", entities: ["The Lonely", "The Eye"]},
+        { target: "Marionetek", entities: ["The Web","The Stranger"]},
+        { target: "Manekinów", entities: ["The Stranger"]},
+        { target: "Klaunów i cyrku", entities: ["The Stranger"]},
+        { target: "Taksydermii", entities: ["The Stranger"]},
+        { target: "Śmierci", entities: ["The End"]},
+        { target: "Dzikich zwierząt i psów", entities: ["The Hunt"]},
+        { target: "Policji", entities: ["The Hunt"]},
+        { target: "Utraty bliskich", entities: ["The Desolation","The End", "The Lonely"]},
+        { target: "Ognia", entities: ["The Desolation"]},
+        { target: "Klęsk żywiołowych", entities: ["The Desolation", "The Extinction"]},
+        { target: "Bólu", entities: ["The Desolation"]},
+        { target: "Otwartych przestrzeni", entities: ["The Vast"]},
+        { target: "Kosmosu", entities: ["The Vast", "The Dark"]},
+        { target: "Głębin oceanu", entities: ["The Vast", "The Buried"]},
+        { target: "Braku sensu we wszechświecie", entities: ["The Vast"]},
+        { target: "Wysokości i spadania z niej", entities: ["The Vast"]},
+        { target: "Mięsa", entities: ["The Flesh", "Slaughter"]},
+        { target: "Kości", entities: ["The Flesh"]},
+        { target: "Ciemności", entities: ["The Dark"]},
+        { target: "Utraty wzroku", entities: ["The Dark","The Eye"]},
+        { target: "Nieznanego", entities: ["The Stranger", "The Eye","Dark"]},
+        { target: "Kłamstw", entities: ["The Spiral"]},
+        { target: "Małych przestrzeni", entities: ["The Buried"]},
+        { target: "Długów lub kredytu", entities: ["The Buried"]},
+        { target: "Stagnacji", entities: ["The Buried"]},
+        { target: "Monotoni", entities: ["The Buried"]},
+        { target: "Koszmary senne", entities: ["The Spiral"]},
+        { target: "Paraliżu sennego", entities: ["The Buried", "The Dark"]},
+        { target: "Pustki", entities: ["The Lonely","The Vast"]},
+        { target: "Izolacji", entities: ["The Lonely"]},
+        { target: "Deformacji ciała", entities: ["The Flesh"]},
+        { target: "Buntu maszyn", entities: ["The Extinction"]},
+        { target: "Upadku ludzkości", entities: ["The Extinction"]},
+        { target: "Końca Świata", entities: ["The Extinction", "The End"]},
+        { target: "Tego co dzieje się z człowiekiem po śmierci", entities: ["The End"]},
+        { target: "Masek", entities: ["The Stranger"]},
+        { target: "Niekontrolowanej brutalności i walki", entities: ["The Slaughter"]},
+        { target: "Rzezi", entities: ["The Slaughter"]},
+        { target: "Faktu, że Twój umysł może płatać Ci figle", entities: ["The Spiral"]},
+        { target: "Żył", entities: ["The Flesh"]},
+        { target: "Procedur inwazyjnych dla ciała", entities: ["The Flesh"]},
+        { target: "Tłumów", entities: ["The Lonely"]},
+        { target: "Kontoli umysłu", entities: ["The Spiral","Web"]},
+        { target: "Bezsenności", entities: ["The Spiral"]},
+        { target: "Rzezi", entities: ["The Slaughter"]},
+        { target: "Niewiedzy", entities: ["The Eye","the Dark"]},
+        { target: "Wojska", entities: ["The Hunt","The Slaughter"]},
+    ];
+
+    let userScores = { "The Vast": 0, "The Eye": 0, "The Lonely": 0, "The Desolation": 0, "The Buried": 0, "The Hunt": 0, "The Spiral": 0, "The Slaughter": 0, "The Flesh": 0, "The Extinction": 0, "The Stranger": 0, "The Dark": 0, "The Corruption": 0, "The Web": 0, "The End": 0 };
+    // NAPRAWIONO LITERÓWKĘ: ").The Lonely" zmieniono na poprawne "The Lonely"
+    let userMarkedScores = { "The Vast": 0, "The Eye": 0, "The Lonely": 0, "The Desolation": 0, "The Buried": 0, "The Hunt": 0, "The Spiral": 0, "The Slaughter": 0, "The Flesh": 0, "The Extinction": 0, "The Stranger": 0, "The Dark": 0, "The Corruption": 0, "The Web": 0, "The End": 0 };
+    
+    let currentQuestionIndex = 0;
+    let currentScaleIndex = 0;
+    let isScalePhase = false;
+    let currentUser = "";
+
+    let tempFearValue = 0;
+    let tempLikeValue = 0;
+
+    function tryLogin() {
+        const user = document.getElementById('username').value.trim().toLowerCase();
+        const pass = document.getElementById('password').value;
+        const errorBox = document.getElementById('error-box');
+
+        if (users.hasOwnProperty(user) && users[user] === pass) {
+            currentUser = user;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('hub-screen').classList.remove('hidden');
+            document.getElementById('logout-link').classList.remove('hidden');
+            errorBox.innerText = ""; 
+            
+            const header = document.getElementById('welcome-header');
+            if (user === 'j.sims') {
+                header.innerText = "CENTRAL NODE // LOGGED AS: ARCHIVIST_SIMS";
+            } else if (user === 'admin' || user === 'guest') {
+                header.innerText = `CENTRAL NODE // LOGGED AS: ${user.toUpperCase()}`;
+            } else {
+                header.innerText = `CENTRAL NODE // LOGGED AS: RESEARCHER_${user.toUpperCase().replace('.', '_')}`;
+            }
+        } else {
+            errorBox.innerText = "ERROR: ACCESS DENIED. INVALID CREDENTIALS.";
+        }
+    }
+
+    function logout() {
+        document.getElementById('hub-screen').classList.add('hidden');
+        document.getElementById('database-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('tech-screen').classList.add('hidden');
+        document.getElementById('nav-hub-btn').classList.add('hidden');
+        document.getElementById('logout-link').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+    }
+
+    function goBackToHub() {
+        document.getElementById('database-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('tech-screen').classList.add('hidden');
+        document.getElementById('nav-hub-btn').classList.add('hidden');
+        document.getElementById('hub-screen').classList.remove('hidden');
+    }
+
+    function openTechSupport() {
+        document.getElementById('hub-screen').classList.add('hidden');
+        document.getElementById('tech-screen').classList.remove('hidden');
+        document.getElementById('nav-hub-btn').classList.remove('hidden');
+    }
+
+    function openDatabase() {
+        document.getElementById('hub-screen').classList.add('hidden');
+        document.getElementById('database-screen').classList.remove('hidden');
+        document.getElementById('nav-hub-btn').classList.remove('hidden');
+        buildTable(database);
+        setupSearch();
+    }
+
+    function buildTable(filesToDisplay) {
+        const tbody = document.getElementById('statements-table-body');
+        tbody.innerHTML = '';
+        filesToDisplay.forEach((item) => {
+            const subjectText = item.restricted ? `[LOCKED] ${item.subject}` : item.subject;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>#${item.id}</td><td>${item.date}</td><td>${subjectText}</td><td>${item.magNum}</td>`;
+            const originalIndex = database.findIndex(dbItem => dbItem.id === item.id);
+            tr.addEventListener('click', () => loadStatement(originalIndex));
+            tbody.appendChild(tr);
+        });
+    }
+
+    function setupSearch() {
+        const searchBox = document.getElementById('search-box');
+        searchBox.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const filteredData = database.filter(item => {
+                const matchesEntity = item.entities && item.entities.some(ent => ent.toLowerCase().includes(query));
+                
+                return (item.id || "").toLowerCase().includes(query) || 
+                       (item.subject || "").toLowerCase().includes(query) || 
+                       (item.title || "").toLowerCase().includes(query) || 
+                       (item.content || "").toLowerCase().includes(query) || 
+                       (item.magNum || "").toLowerCase().includes(query) ||
+                       (item.assessment || "").toLowerCase().includes(query) ||
+                       matchesEntity;
+            });
+            buildTable(filteredData);
+        });
+    }
+
+    window.toggleTW = function() {
+        const content = document.getElementById('tw-content-box');
+        const arrow = document.getElementById('tw-arrow');
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            arrow.innerText = "▼";
+        } else {
+            content.classList.add('hidden');
+            arrow.innerText = "▲";
+        }
+    }
+
+    function loadStatement(index) {
+        const item = database[index];
+        const viewer = document.getElementById('document-viewer');
+        viewer.classList.remove('hidden');
+        if (item.restricted) {
+            viewer.innerHTML = `<div class="access-denied-box"><p class="blink">!!! BŁĄD: DOSTĘP ZABLOKOWANY !!!</p><p>PLIK ${item.magNum} ZOSTAŁ ZASTRZEŻONY PRZEZ RADĘ NAUKOWĄ</p><p>WYMAGANE UPRAWNIENIA KATEGORII 2.</p><p>PRÓBA DOSTĘPU ZOSTANIE ZGŁOSZONA DO ADMINISTRATORA SIECI.</p></div>`;
+        } else {
+            let twHTML = "";
+            if (item.tw) {
+                const twArray = item.tw.split(',').map(tag => tag.trim());
+                const twListItems = twArray.map(tag => `<li>${tag}</li>`).join('');
+                
+                twHTML = `
+                    <div class="tw-box">
+                        <div class="tw-header" onclick="toggleTW()">
+                            <span>[SYSTEM NOTICE: CONTENT WARNINGS]</span>
+                            <span id="tw-arrow">▲</span>
+                        </div>
+                        <div id="tw-content-box" class="tw-content hidden">
+                            <ul class="tw-list">
+                                ${twListItems}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            }
+
+            viewer.innerHTML = `
+                <h3>${item.title}</h3>
+                <div class="metadata">
+                    <div><strong>REGISTRATION NO:</strong> ${item.magNum}</div>
+                    <div><strong>STATEMENT ID:</strong> #${item.id}</div>
+                    <div><strong>DATE:</strong> ${item.date}</div>
+                    <div><strong>PROVIDER:</strong> ${item.subject}</div>
+                </div>
+                ${twHTML}
+                <div>${item.content}</div>
+                <div class="assessment"><strong>FOLLOW-UP:</strong><p>${item.assessment}</p></div>
+            `;
+        }
+        viewer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function startQuiz() {
+        alert('[SYSTEM NOTICE] PROCEDURA TESTOWA TYMCZASOWO ZABLOKOWANA. TRWAJĄ PRACE KONFIGURACYJNE.');
+        return;
+    }
+
+    function showQuestion() {
+        const container = document.getElementById('answers-container');
+        container.innerHTML = '';
+
+        if (!isScalePhase) {
+            const currentQuestion = quizQuestions[currentQuestionIndex];
+            document.getElementById('question-text').innerText = `[PROBKA ${currentQuestionIndex + 1}/${quizQuestions.length}] \n\n ${currentQuestion.text}`;
+
+            currentQuestion.answers.forEach(answer => {
+                const button = document.createElement('button');
+                button.innerText = answer.text;
+                button.classList.add('term-btn', 'quiz-btn');
+                button.onclick = () => {
+                    for (const ent in answer.scores) { userScores[ent] += answer.scores[ent]; }
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < quizQuestions.length) {
+                        showQuestion();
+                    } else {
+                        isScalePhase = true;
+                        showQuestion();
+                    }
+                };
+                container.appendChild(button);
+            });
+        } else {
+            const currentScale = fearsAndLikesQuestions[currentScaleIndex];
+            document.getElementById('question-text').innerText = `[ANALIZA STRUKTURALNA: ${currentScaleIndex + 1}/${fearsAndLikesQuestions.length}] \n\nStosunek do: ${currentScale.target.toUpperCase()}`;
+
+            tempFearValue = 0;
+            tempLikeValue = 0;
+
+            const scaleHTML = `
+                <div class="scale-section">
+                    <div class="scale-title">W jakim stopniu odczuwasz STRACH przed tym czynnikiem?</div>
+                    <div class="scale-options">
+                        <button class="term-btn scale-btn" onclick="selectValue('fear', 1)">1</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('fear', 2)">2</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('fear', 3)">3</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('fear', 4)">4</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('fear', 5)">5</button>
+                    </div>
+                </div>
+                <div class="scale-section">
+                    <div class="scale-title">W jakim stopniu czujesz FASCYNACJĘ / sympatyzujesz z tym czynnikiem?</div>
+                    <div class="scale-options">
+                        <button class="term-btn scale-btn" onclick="selectValue('like', 1)">1</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('like', 2)">2</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('like', 3)">3</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('like', 4)">4</button>
+                        <button class="term-btn scale-btn" onclick="selectValue('like', 5)">5</button>
+                    </div>
+                </div>
+                <button class="term-btn" id="submit-scale-btn" style="width:100%; margin-top:10px;" onclick="processScaleAnswer()" disabled>PRZEŚLIJ DANE DO ANALIZY</button>
+            `;
+            container.innerHTML = scaleHTML;
+        }
+    }
+
+    window.selectValue = function(type, value) {
+        if (type === 'fear') {
+            tempFearValue = value;
+            const buttons = document.querySelectorAll('#answers-container .scale-section:nth-child(1) .scale-btn');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            buttons[value-1].classList.add('selected');
+        } else {
+            tempLikeValue = value;
+            const buttons = document.querySelectorAll('#answers-container .scale-section:nth-child(2) .scale-btn');
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            buttons[value-1].classList.add('selected');
+        }
+
+        if (tempFearValue > 0 && tempLikeValue > 0) {
+            document.getElementById('submit-scale-btn').removeAttribute('disabled');
+        }
+    }
+
+    window.processScaleAnswer = function() {
+        const currentScale = fearsAndLikesQuestions[currentScaleIndex];
+        const ents = currentScale.entities;
+
+        ents.forEach(ent => {
+            if ((tempFearValue === 4 || tempFearValue === 5) && (tempLikeValue === 1 || tempLikeValue === 2)) {
+                userMarkedScores[ent] += tempFearValue;
+            } else if (tempLikeValue === 4 || tempLikeValue === 5) {
+                userScores[ent] += tempLikeValue;
+            }
+        });
+
+        currentScaleIndex++;
+        if (currentScaleIndex < fearsAndLikesQuestions.length) {
+            showQuestion();
+        } else {
+            showQuizResults();
+        }
+    }
+
+    function showQuizResults() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        const listContainer = document.getElementById('results-list');
+        listContainer.innerHTML = '';
+
+        function generateBars(matrix, isMarked) {
+            let total = 0;
+            for (const ent in matrix) { total += matrix[ent]; }
+            if (total === 0) total = 1;
+
+            const arr = [];
+            for (const ent in matrix) {
+                const pct = Math.round((matrix[ent] / total) * 100);
+                if (pct > 0) arr.push({ ent, pct });
+            }
+            arr.sort((a, b) => b.pct - a.pct);
+
+            if (arr.length === 0) return `<p style="color:#55a871; opacity:0.5;">Brak znaczących odczytów.</p>`;
+
+            return arr.map(item => `
+                <div class="result-item">
+                    <div class="result-labels"><span>${item.ent}</span><span>${item.pct}%</span></div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill ${isMarked ? 'marked-fill' : ''}" style="width: ${item.pct}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        listContainer.innerHTML = `
+            <div class="result-section-title">> STATUS SYSTEMOWY: PROFIL AWATARA</div>
+            ${generateBars(userScores, false)}
+            
+            <div class="result-section-title" style="color:#ff3333; border-color:#ff3333;">> STATUS SYSTEMOWY: PROFIL NAZNACZENIA</div>
+            ${generateBars(userMarkedScores, true)}
+        `;
+    }
+
+    document.getElementById('retry-btn').addEventListener('click', startQuiz);
+</script>
+</body>
+</html>
