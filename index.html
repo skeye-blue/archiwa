@@ -37,7 +37,6 @@
             flex: 1;
         }
 
-        /* Górny pasek statusu */
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -188,16 +187,23 @@
             font-size: 1rem;
         }
 
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 10px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
 
         th, td {
             border: 1px solid var(--term-dim);
             padding: 10px;
             text-align: left;
+            white-space: nowrap;
         }
 
         th {
@@ -505,18 +511,20 @@
             <input type="text" id="search-box" class="search-input" placeholder="Wyszukaj..." autocomplete="off">
         </div>
         
-        <table id="archive-table">
-            <thead>
-                <tr>
-                    <th>REF ID</th>
-                    <th>DATE</th>
-                    <th>SUBJECT</th>
-                    <th>REF NO.</th>
-                </tr>
-            </thead>
-            <tbody id="statements-table-body">
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table id="archive-table">
+                <thead>
+                    <tr>
+                        <th>REF ID</th>
+                        <th>DATE</th>
+                        <th>SUBJECT</th>
+                        <th>REF NO.</th>
+                    </tr>
+                </thead>
+                <tbody id="statements-table-body">
+                </tbody>
+            </table>
+        </div>
 
         <div id="document-viewer" class="statement-view hidden"></div>
     </div>
@@ -576,7 +584,7 @@
                 <p>Nazywam się Jonathan Sims. Pracuję dla Instytutu Magnusa w Londynie, organizacji zajmującej się badaniami naukowymi ezoteryki i zjawisk paranormalnych. Dyrektor Instytutu, Pan Elias Bouchard, zatrudnił mnie, żebym zastąpił poprzednią, niedawno zmarłą, Główną Archiwistkę – Gertrude Robinson.</p>
                 <p>Ostatnie cztery lata pracowałem w Instytucie jako badacz, w związku z tym posiadam wiedzę na temat znacznej części jego ważnych kontraktów i projektów. Zdecydowana większość z nich utyka w martwym punkcie. Można się zresztą tego spodziewać, biorąc pod uwagę fakt, że prawdziwe zjawiska nadprzyrodzone, których (jak zawsze podkreślam) jest bardzo mało, mają tendencję do opierania się łatwym wnioskom. Kiedy dochodzenie dociera do momentu, w którym nie da się zrobić nic więcej, dokumenty z nim związane trafiają do archiwów.</p>
                 <p>Instytut został założony w 1818 roku, oznacza to, że archiwum zawiera prawie 200 lat dokumentacji takich przypadków. W połączeniu z faktem, że większość pracowników Instytutu preferuje życie w wieży z kości słoniowej nad takie w czystej akademii związanej ze skomplikowaną pracą i uważnym badaniem zeznań, czy też bieżących doświadczeń – otrzymujemy perfekcyjnie zorganizowaną bibliotekę i absolutnie zaniedbane archiwum. Niekoniecznie jest to problem. Współczesne systemy dokumentacji i indeksowania stanowią prawdziwe cuda. Wszystko czego trzeba by utrzymać porządek to chociażby w połowie przyzwoity Archiwista. Najwyraźniej Gertrude Robinson nie była jednym z nich.</p>
-                <p>Z miejsca, w którym siedzę, jestem w stanie dostrzec tysiące dokumentów. W znacznej części  luźno rozrzuconych po całym pomieszczeniu. Inne wrzucono do nieoznakowanych pudeł. Niewiele z nich zostało oznaczone pomocnymi etykietami, takimi jak 86-91 G/H. Ale to nie wszystko, większość zdaje się być napisana ręcznie lub na maszynie. Nic nie jest tu zdigitalizowane, nie ma też żadnego rodzaju wersji dźwiękowych. Właściwie, zdawać by się mogło, że pierwszym komputerem, jaki kiedykolwiek znalazł się w tym pomieszczeniu jest laptop, który ze sobą dzisiaj przyniosłem. Co ważniejsze, zdaje się że niewiele dokumentów związanych z faktycznymi dochodzeniami jest przechowywane w archiwach. W związku z powyższym, większość zgromadzonych tu dokumentów stanowią same zeznania.</p>
+                <p>Z miejsca, w którym siedzę, jestem w stanie dostrzec tysiące dokumentów. W znacznej części  luźno rozrzuconych po całym pomieszczeniu. Inne wrzucono do nieoznakowanych pudeł. Niewiele z nich zostało oznaczone pomocnymi etykietami, takimi jak 86-91 G/H. Ale to nie wszystko, większość zdaje się być napisana odręcznie lub na maszynie. Nic nie jest tu zdigitalizowane, nie ma też żadnego rodzaju wersji dźwiękowych. Właściwie, zdawać by się mogło, że pierwszym komputerem, jaki kiedykolwiek znalazł się w tym pomieszczeniu jest laptop, który ze sobą dzisiaj przyniosłem. Co ważniejsze, zdaje się że niewiele dokumentów związanych z faktycznymi dochodzeniami jest przechowywane w archiwach. W związku z powyższym, większość zgromadzonych tu dokumentów stanowią same zeznania.</p>
                 <p>Uporządkowanie tego bałaganu zajmie mi mnóstwo czasu… Udało mi się załatwić do pomocy dwóch innych badaczy. Dobrze… Tak właściwie to trzech, ale nie liczę Martina, który prawdopodobnie nie wniesie do naszej pracy nic poza opóźnieniami. Planuję zdigitalizować tak dużo dokumentów, jak będzie to możliwe i nagrać wersje dźwiękowe każdego z nich. Część będzie musiało zostać nagrane przy użyciu magnetofonu, ponieważ moje próby zrobienia tego na laptopie spotkały się z… poważnymi zakłóceniami nagrywanego dźwięku.</p>
                 <p>Równolegle, Tim, Sasha i… tak, prawdopodobnie Martin, będą prowadzić dodatkowe dochodzenia, by sprawdzić jakich detali może brakować w naszych dokumentach. Postaram się przedstawić je w możliwie zwięzłej formie na końcu każdego z zeznań. Niestety, już teraz mogę obiecać, że nagrania nie będą tworzone w żadnej konkretnej kolejności względem daty czy tematyki. Mogę jedynie przeprosić z góry każdego badacza, który w przyszłości będzie próbował wykorzystać powstałą dokumentację do własnych badań.</p>
                 <p>Zdaje się, że spędziłem wystarczająco czasu usprawiedliwiając stan tego miejsca. Gdzieś trzeba zacząć.</p>
@@ -721,7 +729,6 @@
     ];
 
     let userScores = { "The Vast": 0, "The Eye": 0, "The Lonely": 0, "The Desolation": 0, "The Buried": 0, "The Hunt": 0, "The Spiral": 0, "The Slaughter": 0, "The Flesh": 0, "The Extinction": 0, "The Stranger": 0, "The Dark": 0, "The Corruption": 0, "The Web": 0, "The End": 0 };
-    // NAPRAWIONO LITERÓWKĘ: ").The Lonely" zmieniono na poprawne "The Lonely"
     let userMarkedScores = { "The Vast": 0, "The Eye": 0, "The Lonely": 0, "The Desolation": 0, "The Buried": 0, "The Hunt": 0, "The Spiral": 0, "The Slaughter": 0, "The Flesh": 0, "The Extinction": 0, "The Stranger": 0, "The Dark": 0, "The Corruption": 0, "The Web": 0, "The End": 0 };
     
     let currentQuestionIndex = 0;
