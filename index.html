@@ -449,14 +449,14 @@
     </div>
     
     <div id="login-screen" class="login-form">
-        <h2>RESTRICTED ACCESS</h2>
+        <h2>DOSTĘP OGRANICZONY</h2>
         <p>Wprowadź login i hasło:</p>
         <div class="input-line">
             <label>USER ID:</label>
             <input type="text" id="username" autocomplete="off">
         </div>
         <div class="input-line">
-            <label>PASSWORD:</label>
+            <label>PASS:</label>
             <input type="password" id="password">
         </div>
         <button class="term-btn" onclick="tryLogin()">ZALOGUJ</button>
@@ -502,7 +502,7 @@
         
         <div class="search-container">
             <label for="search-box">SEARCH_QUERY_></label>
-            <input type="text" id="search-box" class="search-input" placeholder="Wpisz frazę lub nazwę Potęgi..." autocomplete="off">
+            <input type="text" id="search-box" class="search-input" placeholder="Wyszukaj..." autocomplete="off">
         </div>
         
         <table id="archive-table">
@@ -549,12 +549,12 @@
 
 <script>
     const users = {
-        "j.sims": "watchers_crown",
-        "m.blackwood": "lonely_tea",
-        "t.stoker": "kayak_2016",
-        "s.james": "artifact_storage",
+        "j.sims": "archivist2016",
         "g.robinson": "fuckyouelias",
-        "h.strange": "pass123",
+        "m.blackwood": "earlgray2016",
+        "t.stoker": "maryjane2016",
+        "s.james": "notme",
+        "hela": "pass123",
         "aku": "pass123",
         "guest": "guest123",
         "admin": "admin123"
@@ -745,8 +745,8 @@
             errorBox.innerText = ""; 
             
             const header = document.getElementById('welcome-header');
-            if (user === 'j.sims') {
-                header.innerText = "CENTRAL NODE // LOGGED AS: ARCHIVIST_SIMS";
+            if (user === 'j.sims' || user == 'g.robinson') {
+                header.innerText = `CENTRAL NODE // LOGGED AS: ARCHIVIST_${user.toUpperCase().replace('.', '_')}`;
             } else if (user === 'admin' || user === 'guest') {
                 header.innerText = `CENTRAL NODE // LOGGED AS: ${user.toUpperCase()}`;
             } else {
